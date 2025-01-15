@@ -1,39 +1,22 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import React, { useState, useEffect } from "react";
+import { View } from "react-native";
+import SplashScreen from "./SplashScreen";
+import Pages from "./Pages";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const [isSplashVisible, setIsSplashVisible] = useState(true);
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+    const timer = setTimeout(() => {
+      setIsSplashVisible(false); // Sembunyikan SplashScreen setelah 3 detik
+    }, 3000); // Durasi SplashScreen
 
-  if (!loaded) {
-    return null;
-  }
+    return () => clearTimeout(timer); // Bersihkan timer saat komponen di-unmount
+  }, []);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <View style={{ flex: 1 }}>
+      {isSplashVisible ? <SplashScreen /> : <Pages />}
+    </View>
   );
 }
